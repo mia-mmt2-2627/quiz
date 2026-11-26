@@ -1,0 +1,1088 @@
+{
+  "id": "checkpoint-1",
+  "version": 1,
+  "title": "MMT2 Checkpoint 1",
+  "status": "draft",
+  "intro": "Een oefenquiz over de theorie en week 1: computational thinking, programming principles en de eerste stappen in p5.js. Het telt niet mee voor je cijfer. Na het inleveren krijg je per vraag het juiste antwoord, met uitleg en vaak een extra tip.",
+  "bonus": {
+    "title": "Vanaf hier: alleen voor de pro's",
+    "text": "De laatste 10 vragen gaan over dezelfde stof, maar je moet een stap verder denken. Fout? Helemaal prima, dan krijg je straks de beste uitleg."
+  },
+  "questions": [
+    {
+      "id": "ct-01",
+      "topic": "Computational thinking",
+      "pro": false,
+      "question": "Computational thinking bestaat uit vier pijlers. Welk rijtje klopt?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Setup, draw, canvas, functies"
+        },
+        {
+          "id": "b",
+          "text": "Variabelen, functies, condities, loops"
+        },
+        {
+          "id": "c",
+          "text": "Analyseren, ontwerpen, bouwen, testen"
+        },
+        {
+          "id": "d",
+          "text": "Ontleden, patroonherkenning, abstractie, algoritmes"
+        }
+      ]
+    },
+    {
+      "id": "ct-02",
+      "topic": "Computational thinking",
+      "pro": false,
+      "question": "Je wilt Pac-Man namaken en schrijft eerst op: speler besturen, spoken laten bewegen, bolletjes opeten, score bijhouden. Welke pijler pas je toe?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Patroonherkenning"
+        },
+        {
+          "id": "b",
+          "text": "Algoritmes"
+        },
+        {
+          "id": "c",
+          "text": "Abstractie"
+        },
+        {
+          "id": "d",
+          "text": "Ontleden"
+        }
+      ]
+    },
+    {
+      "id": "ct-03",
+      "topic": "Computational thinking",
+      "pro": false,
+      "question": "Blinky, Pinky, Inky en Clyde hebben allemaal een lichaam met een golvende onderkant, twee ogen en één kleur. Welke pijler gebruik je als je dat opmerkt?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Patroonherkenning"
+        },
+        {
+          "id": "b",
+          "text": "Ontleden"
+        },
+        {
+          "id": "c",
+          "text": "Abstractie"
+        },
+        {
+          "id": "d",
+          "text": "Algoritmes"
+        }
+      ]
+    },
+    {
+      "id": "ct-04",
+      "topic": "Computational thinking",
+      "pro": false,
+      "question": "Je tekent een spook voor je game. Je let alleen op vorm en kleur, en negeert zijn naam en hoe hij zich gedraagt. Hoe heet dit?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Debuggen"
+        },
+        {
+          "id": "b",
+          "text": "Patroonherkenning"
+        },
+        {
+          "id": "c",
+          "text": "Ontleden"
+        },
+        {
+          "id": "d",
+          "text": "Abstractie"
+        }
+      ]
+    },
+    {
+      "id": "ct-05",
+      "topic": "Computational thinking",
+      "pro": false,
+      "question": "Welke uitspraak over een algoritme klopt?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Een computer verbetert een slecht algoritme vanzelf"
+        },
+        {
+          "id": "b",
+          "text": "Een algoritme is hetzelfde als een programmeertaal"
+        },
+        {
+          "id": "c",
+          "text": "Een algoritme heeft een duidelijk begin, een duidelijk einde en stappen in een vaste volgorde"
+        },
+        {
+          "id": "d",
+          "text": "Een algoritme kun je alleen in code opschrijven"
+        }
+      ]
+    },
+    {
+      "id": "ct-06",
+      "topic": "Computational thinking",
+      "pro": false,
+      "question": "Een student schrijft een algoritme om Blinky te tekenen: 1. teken het rode lichaam, 2. teken het oogwit, 3. teken de pupillen, 4. kleur de achtergrond grijs met background(). Wat gaat er mis als je dit precies zo in draw() programmeert?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Niets, de volgorde maakt niet uit"
+        },
+        {
+          "id": "b",
+          "text": "Blinky wordt grijs in plaats van rood"
+        },
+        {
+          "id": "c",
+          "text": "De pupillen worden onder het oogwit getekend"
+        },
+        {
+          "id": "d",
+          "text": "Je ziet alleen een grijs vlak: stap 4 verft over alles heen"
+        }
+      ]
+    },
+    {
+      "id": "flow-01",
+      "topic": "Flow",
+      "pro": false,
+      "question": "Wat is het verschil tussen setup() en draw()?",
+      "options": [
+        {
+          "id": "a",
+          "text": "setup() wordt 60 keer per seconde uitgevoerd, draw() één keer"
+        },
+        {
+          "id": "b",
+          "text": "setup() wordt één keer uitgevoerd bij de start, draw() steeds opnieuw in een continue lus"
+        },
+        {
+          "id": "c",
+          "text": "Beide worden alleen uitgevoerd als je ze zelf aanroept"
+        },
+        {
+          "id": "d",
+          "text": "draw() wordt alleen uitgevoerd als je met de muis klikt"
+        }
+      ]
+    },
+    {
+      "id": "flow-02",
+      "topic": "Flow",
+      "pro": false,
+      "question": "Wat zie je op het canvas?",
+      "code": "function draw() {\n  fill(255, 0, 0);\n  ellipse(200, 200, 100, 100);\n  background(220);\n}",
+      "options": [
+        {
+          "id": "a",
+          "text": "Alleen een grijze achtergrond"
+        },
+        {
+          "id": "b",
+          "text": "Een witte cirkel"
+        },
+        {
+          "id": "c",
+          "text": "Een foutmelding"
+        },
+        {
+          "id": "d",
+          "text": "Een rode cirkel op een grijze achtergrond"
+        }
+      ]
+    },
+    {
+      "id": "flow-03",
+      "topic": "Flow",
+      "pro": false,
+      "question": "Wat zie je na een paar seconden?",
+      "code": "function setup() {\n  createCanvas(400, 400);\n  background(220);\n}\n\nfunction draw() {\n  ellipse(random(400), random(400), 20, 20);\n}",
+      "options": [
+        {
+          "id": "a",
+          "text": "Niets, want background() staat niet in draw()"
+        },
+        {
+          "id": "b",
+          "text": "Steeds meer cirkels: het canvas loopt vol"
+        },
+        {
+          "id": "c",
+          "text": "Eén cirkel die steeds naar een andere plek springt"
+        },
+        {
+          "id": "d",
+          "text": "Eén cirkel in het midden"
+        }
+      ]
+    },
+    {
+      "id": "func-01",
+      "topic": "Functies",
+      "pro": false,
+      "question": "Wordt het spook getekend?",
+      "code": "function setup() {\n  createCanvas(400, 400);\n}\n\nfunction draw() {\n  background(220);\n}\n\nfunction tekenSpook() {\n  fill(255, 0, 0);\n  ellipse(200, 200, 80, 80);\n}",
+      "options": [
+        {
+          "id": "a",
+          "text": "Nee, want tekenSpook() wordt nergens aangeroepen"
+        },
+        {
+          "id": "b",
+          "text": "Ja, alle functies worden automatisch uitgevoerd"
+        },
+        {
+          "id": "c",
+          "text": "Ja, maar maar één keer"
+        },
+        {
+          "id": "d",
+          "text": "Nee, want een functie mag niet onder draw() staan"
+        }
+      ]
+    },
+    {
+      "id": "func-02",
+      "topic": "Functies",
+      "pro": false,
+      "question": "Wat tekent ellipse(100, 50, 80, 40); ?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Een cirkel met middelpunt (100, 50) en diameter 80"
+        },
+        {
+          "id": "b",
+          "text": "Een ovaal met middelpunt (100, 50), 80 breed en 40 hoog"
+        },
+        {
+          "id": "c",
+          "text": "Een ovaal met linkerbovenhoek (100, 50), 80 breed en 40 hoog"
+        },
+        {
+          "id": "d",
+          "text": "Een ovaal van 100 breed en 50 hoog op positie (80, 40)"
+        }
+      ]
+    },
+    {
+      "id": "p5-01",
+      "topic": "p5.js-project",
+      "pro": false,
+      "question": "Wat is p5.js?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Een JavaScript-library: een verzameling kant-en-klare functies die tekenen en interactie makkelijker maakt"
+        },
+        {
+          "id": "b",
+          "text": "Een aparte programmeertaal die alleen in de p5-editor werkt"
+        },
+        {
+          "id": "c",
+          "text": "Een uitbreiding van CSS"
+        },
+        {
+          "id": "d",
+          "text": "Een tekenprogramma zoals Illustrator"
+        }
+      ]
+    },
+    {
+      "id": "p5-02",
+      "topic": "p5.js-project",
+      "pro": false,
+      "question": "In welke volgorde zet je de scripts in je index.html?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Dat maakt niet uit"
+        },
+        {
+          "id": "b",
+          "text": "Alleen sketch.js; die laadt p5.js zelf"
+        },
+        {
+          "id": "c",
+          "text": "Eerst de p5.js-library, dan sketch.js"
+        },
+        {
+          "id": "d",
+          "text": "Eerst sketch.js, dan de p5.js-library"
+        }
+      ]
+    },
+    {
+      "id": "p5-03",
+      "topic": "p5.js-project",
+      "pro": false,
+      "question": "Je bekijkt je sketch met de developer tools van de browser. Wat zie je?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Eén <canvas>-element; de vormen erin kun je niet los selecteren"
+        },
+        {
+          "id": "b",
+          "text": "Een <svg> met alle vormen erin"
+        },
+        {
+          "id": "c",
+          "text": "Niets, p5.js gebruikt geen HTML"
+        },
+        {
+          "id": "d",
+          "text": "Elke getekende vorm als apart HTML-element"
+        }
+      ]
+    },
+    {
+      "id": "canvas-01",
+      "topic": "Canvas & vormen",
+      "pro": false,
+      "question": "Waar ligt het punt (0, 0) op het canvas?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Rechtsboven"
+        },
+        {
+          "id": "b",
+          "text": "Linksonder, net als bij wiskunde"
+        },
+        {
+          "id": "c",
+          "text": "Linksboven"
+        },
+        {
+          "id": "d",
+          "text": "In het midden"
+        }
+      ]
+    },
+    {
+      "id": "canvas-02",
+      "topic": "Canvas & vormen",
+      "pro": false,
+      "question": "Welk punt staat het hoogst op het scherm?",
+      "code": "createCanvas(100, 100);\nstrokeWeight(10);\npoint(20, 5);\npoint(5, 20);",
+      "options": [
+        {
+          "id": "a",
+          "text": "Ze staan even hoog"
+        },
+        {
+          "id": "b",
+          "text": "point(20, 5)"
+        },
+        {
+          "id": "c",
+          "text": "Ze staan op dezelfde plek"
+        },
+        {
+          "id": "d",
+          "text": "point(5, 20)"
+        }
+      ]
+    },
+    {
+      "id": "canvas-03",
+      "topic": "Canvas & vormen",
+      "pro": false,
+      "question": "Welke uitspraak over rect(50, 50, 100, 50); klopt?",
+      "options": [
+        {
+          "id": "a",
+          "text": "De linkerbovenhoek ligt op (50, 50); de rechthoek loopt tot x = 150 en y = 100"
+        },
+        {
+          "id": "b",
+          "text": "Het midden van de rechthoek ligt op (50, 50)"
+        },
+        {
+          "id": "c",
+          "text": "De rechterbenedenhoek ligt op (50, 50)"
+        },
+        {
+          "id": "d",
+          "text": "De rechthoek is 50 breed en 100 hoog"
+        }
+      ]
+    },
+    {
+      "id": "canvas-04",
+      "topic": "Canvas & vormen",
+      "pro": false,
+      "question": "Wat zie je?",
+      "code": "createCanvas(400, 400);\nellipse(400, 200, 100, 100);",
+      "options": [
+        {
+          "id": "a",
+          "text": "Een hele cirkel tegen de rechterrand"
+        },
+        {
+          "id": "b",
+          "text": "Een halve cirkel tegen de rechterrand"
+        },
+        {
+          "id": "c",
+          "text": "Niets, de cirkel valt buiten het canvas"
+        },
+        {
+          "id": "d",
+          "text": "Een hele cirkel in het midden"
+        }
+      ]
+    },
+    {
+      "id": "canvas-05",
+      "topic": "Canvas & vormen",
+      "pro": false,
+      "question": "Je canvas is 400 bij 400 pixels. Welke regel vult precies de onderste helft van het canvas?",
+      "options": [
+        {
+          "id": "a",
+          "text": "rect(0, 0, 400, 200);"
+        },
+        {
+          "id": "b",
+          "text": "rect(200, 0, 200, 400);"
+        },
+        {
+          "id": "c",
+          "text": "rect(0, 200, 400, 200);"
+        },
+        {
+          "id": "d",
+          "text": "rect(0, 400, 400, 200);"
+        }
+      ]
+    },
+    {
+      "id": "canvas-06",
+      "topic": "Canvas & vormen",
+      "pro": false,
+      "question": "Wat zie je?",
+      "code": "fill(255, 0, 0);\nellipse(200, 200, 200, 200);\nfill(0, 0, 255);\nrect(150, 150, 100, 100);",
+      "options": [
+        {
+          "id": "a",
+          "text": "Een paarse vorm, omdat rood en blauw mengen"
+        },
+        {
+          "id": "b",
+          "text": "Een blauw vierkant met een rode cirkel erin"
+        },
+        {
+          "id": "c",
+          "text": "Alleen een rode cirkel, want het vierkant valt erachter"
+        },
+        {
+          "id": "d",
+          "text": "Een rode cirkel met een blauw vierkant in het midden, bovenop"
+        }
+      ]
+    },
+    {
+      "id": "kleur-01",
+      "topic": "Kleur & tekst",
+      "pro": false,
+      "question": "Wat is het verschil tussen fill() en stroke()?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Er is geen verschil"
+        },
+        {
+          "id": "b",
+          "text": "fill() kleurt de achtergrond van het canvas"
+        },
+        {
+          "id": "c",
+          "text": "fill() kleurt de rand, stroke() de binnenkant"
+        },
+        {
+          "id": "d",
+          "text": "fill() kleurt de binnenkant van een vorm, stroke() de rand"
+        }
+      ]
+    },
+    {
+      "id": "kleur-02",
+      "topic": "Kleur & tekst",
+      "pro": false,
+      "question": "Welke kleur krijgt de rechthoek?",
+      "code": "function setup() {\n  createCanvas(400, 400);\n  rect(50, 50, 100, 100);\n  fill(255, 0, 0);\n}",
+      "options": [
+        {
+          "id": "a",
+          "text": "Zwart"
+        },
+        {
+          "id": "b",
+          "text": "Wit, de standaardvulling"
+        },
+        {
+          "id": "c",
+          "text": "Doorzichtig"
+        },
+        {
+          "id": "d",
+          "text": "Rood"
+        }
+      ]
+    },
+    {
+      "id": "kleur-03",
+      "topic": "Kleur & tekst",
+      "pro": false,
+      "question": "Welke kleur geeft fill(255, 255, 0); ?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Wit"
+        },
+        {
+          "id": "b",
+          "text": "Groen"
+        },
+        {
+          "id": "c",
+          "text": "Rood"
+        },
+        {
+          "id": "d",
+          "text": "Geel"
+        }
+      ]
+    },
+    {
+      "id": "kleur-04",
+      "topic": "Kleur & tekst",
+      "pro": false,
+      "question": "Wat doet fill(0, 0, 255, 127); ?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Een donkergrijze vulling"
+        },
+        {
+          "id": "b",
+          "text": "Een blauwe, half doorzichtige vulling"
+        },
+        {
+          "id": "c",
+          "text": "Een fout: fill() accepteert maar drie getallen"
+        },
+        {
+          "id": "d",
+          "text": "Een blauwe vulling met een rand van 127 pixels"
+        }
+      ]
+    },
+    {
+      "id": "kleur-05",
+      "topic": "Kleur & tekst",
+      "pro": false,
+      "question": "Waar komt de tekst?",
+      "code": "textAlign(CENTER, CENTER);\ntext(\"GAME OVER\", width / 2, height / 2);",
+      "options": [
+        {
+          "id": "a",
+          "text": "Dat hangt af van de lengte van de tekst"
+        },
+        {
+          "id": "b",
+          "text": "Linksboven"
+        },
+        {
+          "id": "c",
+          "text": "Precies in het midden van het canvas, horizontaal en verticaal"
+        },
+        {
+          "id": "d",
+          "text": "Horizontaal in het midden, maar tegen de bovenrand"
+        }
+      ]
+    },
+    {
+      "id": "kleur-06",
+      "topic": "Kleur & tekst",
+      "pro": false,
+      "question": "Je wilt alleen de omtrek van een cirkel tekenen: een zwarte ring met een doorzichtig midden. Welke code doet dat?",
+      "options": [
+        {
+          "id": "a",
+          "text": "stroke(0); noStroke(); ellipse(200, 200, 100, 100);"
+        },
+        {
+          "id": "b",
+          "text": "fill(0); ellipse(200, 200, 100, 100);"
+        },
+        {
+          "id": "c",
+          "text": "noStroke(); ellipse(200, 200, 100, 100);"
+        },
+        {
+          "id": "d",
+          "text": "noFill(); stroke(0); ellipse(200, 200, 100, 100);"
+        }
+      ]
+    },
+    {
+      "id": "kleur-07",
+      "topic": "Kleur & tekst",
+      "pro": false,
+      "question": "Wat zie je?",
+      "code": "fill(255, 0, 0, 0);\nrect(100, 100, 200, 100);",
+      "options": [
+        {
+          "id": "a",
+          "text": "Helemaal niets"
+        },
+        {
+          "id": "b",
+          "text": "Alleen de zwarte rand van een rechthoek"
+        },
+        {
+          "id": "c",
+          "text": "Een witte rechthoek"
+        },
+        {
+          "id": "d",
+          "text": "Een rode rechthoek"
+        }
+      ]
+    },
+    {
+      "id": "random-01",
+      "topic": "Random",
+      "pro": false,
+      "question": "Wat kan random(50, 300) teruggeven?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Een getal vanaf 50 tot (niet tot en met) 300, meestal met decimalen, zoals 187.43"
+        },
+        {
+          "id": "b",
+          "text": "Alleen hele getallen van 50 tot en met 300"
+        },
+        {
+          "id": "c",
+          "text": "Precies 50 of precies 300"
+        },
+        {
+          "id": "d",
+          "text": "Een willekeurige kleur"
+        }
+      ]
+    },
+    {
+      "id": "random-02",
+      "topic": "Random",
+      "pro": false,
+      "question": "Wat zie je?",
+      "code": "function draw() {\n  background(220);\n  ellipse(width / 2, height / 2, random(50, 300), random(50, 300));\n}",
+      "options": [
+        {
+          "id": "a",
+          "text": "Een ovaal die ongeveer 60 keer per seconde van vorm en grootte verandert"
+        },
+        {
+          "id": "b",
+          "text": "Eén cirkel met een vaste, willekeurige grootte"
+        },
+        {
+          "id": "c",
+          "text": "Een ovaal die langzaam groeit"
+        },
+        {
+          "id": "d",
+          "text": "Een cirkel die ongeveer 60 keer per seconde van grootte verandert"
+        }
+      ]
+    },
+    {
+      "id": "random-03",
+      "topic": "Random",
+      "pro": false,
+      "question": "Je wilt bij elke start een willekeurige grijze achtergrond. Welke regel doet dat?",
+      "options": [
+        {
+          "id": "a",
+          "text": "background(random(255), random(255), random(255));"
+        },
+        {
+          "id": "b",
+          "text": "background(random(255));"
+        },
+        {
+          "id": "c",
+          "text": "background(random(0));"
+        },
+        {
+          "id": "d",
+          "text": "background(random(255), 0, 0);"
+        }
+      ]
+    },
+    {
+      "id": "flow-04",
+      "topic": "Flow",
+      "pro": false,
+      "question": "In opdracht 1.3 (Random Ghost Gang) zet je noLoop(); in setup() en redraw(); in mousePressed(). Wat is het effect?",
+      "options": [
+        {
+          "id": "a",
+          "text": "setup() wordt bij elke klik opnieuw uitgevoerd"
+        },
+        {
+          "id": "b",
+          "text": "draw() draait gewoon 60 keer per seconde door"
+        },
+        {
+          "id": "c",
+          "text": "draw() draait helemaal nooit"
+        },
+        {
+          "id": "d",
+          "text": "draw() draait één keer bij de start en daarna één keer bij elke muisklik"
+        }
+      ]
+    },
+    {
+      "id": "flow-05",
+      "topic": "Flow",
+      "pro": false,
+      "question": "Wat gebeurt er als je de pagina een paar keer herlaadt?",
+      "code": "function setup() {\n  createCanvas(400, 400);\n  noLoop();\n}\n\nfunction draw() {\n  background(220);\n  ellipse(random(400), random(400), 50, 50);\n}",
+      "options": [
+        {
+          "id": "a",
+          "text": "Je ziet niets, want noLoop() zet draw() helemaal uit"
+        },
+        {
+          "id": "b",
+          "text": "De cirkel springt 60 keer per seconde rond"
+        },
+        {
+          "id": "c",
+          "text": "Je ziet steeds meer cirkels"
+        },
+        {
+          "id": "d",
+          "text": "Je ziet één cirkel die stil blijft staan, bij elke herlaadbeurt op een andere plek"
+        }
+      ]
+    },
+    {
+      "id": "git-01",
+      "topic": "Inleveren via GitHub",
+      "pro": false,
+      "question": "Je levert je opdracht in via de gh-pages-branch. Wat upload je?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Een zip-bestand van je project"
+        },
+        {
+          "id": "b",
+          "text": "De rootfolder zelf, als één map"
+        },
+        {
+          "id": "c",
+          "text": "De inhoud van de rootfolder (index.html, css, js ...), zodat index.html bovenaan in de repository staat"
+        },
+        {
+          "id": "d",
+          "text": "Alleen sketch.js"
+        }
+      ]
+    },
+    {
+      "id": "git-02",
+      "topic": "Inleveren via GitHub",
+      "pro": false,
+      "question": "Je sketch werkt op je laptop, maar op GitHub Pages zie je alleen een leeg scherm. In index.html staat <script src=\"js/Sketch.js\">, maar het bestand heet sketch.js. Wat is de meest waarschijnlijke oorzaak?",
+      "options": [
+        {
+          "id": "a",
+          "text": "GitHub Pages ondersteunt geen JavaScript"
+        },
+        {
+          "id": "b",
+          "text": "Je moet eerst de cache van je browser legen"
+        },
+        {
+          "id": "c",
+          "text": "GitHub Pages maakt onderscheid tussen hoofdletters en kleine letters, dus Sketch.js wordt niet gevonden"
+        },
+        {
+          "id": "d",
+          "text": "sketch.js moet in de rootfolder staan in plaats van in de js-map"
+        }
+      ]
+    },
+    {
+      "id": "pro-01",
+      "topic": "Voor de pro's",
+      "pro": true,
+      "question": "Waar ligt de cirkel ten opzichte van het vierkant?",
+      "code": "rect(200, 200, 100, 100);\nellipse(200, 200, 100, 100);",
+      "options": [
+        {
+          "id": "a",
+          "text": "Precies in het vierkant, de cirkel raakt alle vier de zijden"
+        },
+        {
+          "id": "b",
+          "text": "Het middelpunt van de cirkel ligt op de rechterbenedenhoek van het vierkant"
+        },
+        {
+          "id": "c",
+          "text": "Het middelpunt van de cirkel ligt op de linkerbovenhoek van het vierkant, dus maar een kwart van de cirkel overlapt"
+        },
+        {
+          "id": "d",
+          "text": "Ze liggen naast elkaar en raken elkaar niet"
+        }
+      ]
+    },
+    {
+      "id": "pro-02",
+      "topic": "Voor de pro's",
+      "pro": true,
+      "question": "Je canvas is 400 bij 400 pixels. Wat zie je?",
+      "code": "ellipseMode(CORNER);\nellipse(0, 0, 400, 400);",
+      "options": [
+        {
+          "id": "a",
+          "text": "Een kwart cirkel in de linkerbovenhoek"
+        },
+        {
+          "id": "b",
+          "text": "Een cirkel die het hele canvas vult en alle vier de randen raakt"
+        },
+        {
+          "id": "c",
+          "text": "Een cirkel met een diameter van 800 pixels"
+        },
+        {
+          "id": "d",
+          "text": "Niets, want CORNER werkt alleen bij rect()"
+        }
+      ]
+    },
+    {
+      "id": "pro-03",
+      "topic": "Voor de pro's",
+      "pro": true,
+      "question": "Wat zie je?",
+      "code": "createCanvas(100, 100);\nstrokeWeight(20);\nrect(0, 0, 100, 100);",
+      "options": [
+        {
+          "id": "a",
+          "text": "Een zwarte rand van 20 pixels breed langs de randen van het canvas"
+        },
+        {
+          "id": "b",
+          "text": "Een volledig zwart canvas"
+        },
+        {
+          "id": "c",
+          "text": "Een zwarte rand van 10 pixels breed langs de randen; de andere helft van de rand valt buiten het canvas"
+        },
+        {
+          "id": "d",
+          "text": "Alleen een wit vlak, de rand valt helemaal buiten het canvas"
+        }
+      ]
+    },
+    {
+      "id": "pro-04",
+      "topic": "Voor de pro's",
+      "pro": true,
+      "question": "Wat zie je?",
+      "code": "noStroke();\nfill(255);\npoint(50, 50);",
+      "options": [
+        {
+          "id": "a",
+          "text": "Een witte stip op (50, 50)"
+        },
+        {
+          "id": "b",
+          "text": "Een zwarte stip op (50, 50)"
+        },
+        {
+          "id": "c",
+          "text": "Niets: een punt krijgt zijn kleur van stroke(), en die staat uit"
+        },
+        {
+          "id": "d",
+          "text": "Een foutmelding"
+        }
+      ]
+    },
+    {
+      "id": "pro-05",
+      "topic": "Voor de pro's",
+      "pro": true,
+      "question": "Je canvas is 400 breed en 300 hoog. Welke regel tekent een vierkant van 100 bij 100 precies in het midden? (rectMode staat op de standaard.)",
+      "options": [
+        {
+          "id": "a",
+          "text": "rect(150, 150, 100, 100);"
+        },
+        {
+          "id": "b",
+          "text": "rect(200, 150, 100, 100);"
+        },
+        {
+          "id": "c",
+          "text": "rect(100, 50, 100, 100);"
+        },
+        {
+          "id": "d",
+          "text": "rect(150, 100, 100, 100);"
+        }
+      ]
+    },
+    {
+      "id": "pro-06",
+      "topic": "Voor de pro's",
+      "pro": true,
+      "question": "Welke kleuren kan deze vulling opleveren?",
+      "code": "fill(random(255), 0, random(255));",
+      "options": [
+        {
+          "id": "a",
+          "text": "Alleen tinten tussen zwart, rood, blauw en paars, maar nooit groen of geel"
+        },
+        {
+          "id": "b",
+          "text": "Elke kleur die bestaat"
+        },
+        {
+          "id": "c",
+          "text": "Alleen grijstinten"
+        },
+        {
+          "id": "d",
+          "text": "Alleen helder rood of helder blauw"
+        }
+      ]
+    },
+    {
+      "id": "pro-07",
+      "topic": "Voor de pro's",
+      "pro": true,
+      "question": "Je klikt 5 keer met de muis. Hoeveel cirkels zie je dan?",
+      "code": "function setup() {\n  createCanvas(400, 400);\n  background(220);\n  noLoop();\n}\n\nfunction draw() {\n  ellipse(random(400), random(400), 50, 50);\n}\n\nfunction mousePressed() {\n  redraw();\n}",
+      "options": [
+        {
+          "id": "a",
+          "text": "5"
+        },
+        {
+          "id": "b",
+          "text": "6"
+        },
+        {
+          "id": "c",
+          "text": "Steeds meer, ook zonder klikken"
+        },
+        {
+          "id": "d",
+          "text": "1"
+        }
+      ]
+    },
+    {
+      "id": "pro-08",
+      "topic": "Voor de pro's",
+      "pro": true,
+      "question": "Wat zie je waar de twee vierkanten elkaar overlappen?",
+      "code": "createCanvas(400, 400);\nbackground(255);\nfill(0, 0, 0, 127);\nrect(100, 100, 200, 200);\nrect(200, 200, 200, 200);",
+      "options": [
+        {
+          "id": "a",
+          "text": "Wit, omdat de transparantie elkaar opheft"
+        },
+        {
+          "id": "b",
+          "text": "Hetzelfde grijs als de rest van de vierkanten"
+        },
+        {
+          "id": "c",
+          "text": "Een donkerder grijs, omdat twee half doorzichtige lagen over elkaar liggen"
+        },
+        {
+          "id": "d",
+          "text": "Helemaal zwart, omdat 127 + 127 ongeveer 255 is"
+        }
+      ]
+    },
+    {
+      "id": "pro-09",
+      "topic": "Voor de pro's",
+      "pro": true,
+      "question": "Wordt het spook zichtbaar?",
+      "code": "function setup() {\n  createCanvas(400, 400);\n  tekenSpook();\n}\n\nfunction draw() {\n  background(220);\n}\n\nfunction tekenSpook() {\n  fill(255, 0, 0);\n  ellipse(200, 200, 80, 80);\n}",
+      "options": [
+        {
+          "id": "a",
+          "text": "Nee: het spook wordt één keer getekend, maar draw() verft er meteen een achtergrond overheen"
+        },
+        {
+          "id": "b",
+          "text": "Ja, het spook wordt in setup() getekend en blijft staan"
+        },
+        {
+          "id": "c",
+          "text": "Ja, maar het knippert 60 keer per seconde"
+        },
+        {
+          "id": "d",
+          "text": "Nee, want je mag een eigen functie niet in setup() aanroepen"
+        }
+      ]
+    },
+    {
+      "id": "pro-10",
+      "topic": "Voor de pro's",
+      "pro": true,
+      "question": "Lokaal werkt alles, maar op GitHub Pages (https://mia-mmt2-2627.github.io/blinky/) blijft je canvas leeg. In index.html staat <script src=\"/js/sketch.js\">. Wat is er mis?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Door de / aan het begin zoekt de browser in de hoofdmap van het domein (…github.io/js/sketch.js) in plaats van in de map van jouw repo (…github.io/blinky/js/sketch.js)"
+        },
+        {
+          "id": "b",
+          "text": "GitHub Pages ondersteunt geen mappen"
+        },
+        {
+          "id": "c",
+          "text": "sketch.js moet met een hoofdletter"
+        },
+        {
+          "id": "d",
+          "text": "Je moet een volledige URL gebruiken, zoals https://…/sketch.js"
+        }
+      ]
+    }
+  ]
+}
