@@ -1,4 +1,11 @@
 {
   "org": "mia-mmt2-2627",
-  "quizzes": []
+  "quizzes": [
+    {
+      "id": "checkpoint-1",
+      "title": "MMT2 Checkpoint 1",
+      "status": "open",
+      "version": 1
+    }
+  ]
 }

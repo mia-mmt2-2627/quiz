@@ -2,7 +2,7 @@
   "id": "checkpoint-1",
   "version": 1,
   "title": "MMT2 Checkpoint 1",
-  "status": "draft",
+  "status": "open",
   "intro": "Een oefenquiz over de theorie en week 1: computational thinking, programming principles en de eerste stappen in p5.js. Het telt niet mee voor je cijfer. Na het inleveren krijg je per vraag het juiste antwoord, met uitleg en vaak een extra tip.",
   "bonus": {
     "title": "Vanaf hier: alleen voor de pro's",
