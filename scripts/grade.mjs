@@ -15,7 +15,7 @@ import { fileURLToPath } from "node:url";
 export const MAX_BODY = 10000;
 export const MAX_PARTS = 200;
 const QUIZ_RE = /^([a-z0-9-]{1,40})@(\d{1,4})$/;
-const PART_RE = /^([a-z0-9-]{1,20}):([a-f]|-)$/;
+const PART_RE = /^([a-z0-9-]{1,20}):([a-f]|-|\?)$/; // "-" = skipped (later), "?" = "weet ik niet"
 const LOGIN_RE = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
 const PROGRESS_SUFFIX = "-progress";
 
@@ -50,7 +50,10 @@ export function parseQuizField(text) {
   return m ? { id: m[1], version: Number(m[2]) } : null;
 }
 
-/** Map questionId -> optionId|null, or null when the text is not a valid answer list. */
+/**
+ * Map questionId -> optionId | "?" (weet ik niet) | null (skipped), or null when
+ * the text is not a valid answer list.
+ */
 export function parseAnswers(text) {
   const parts = String(text ?? "").split(/[\s,]+/).filter(Boolean);
   if (!parts.length || parts.length > MAX_PARTS) return null;
@@ -58,7 +61,7 @@ export function parseAnswers(text) {
   for (const p of parts) {
     const m = p.match(PART_RE);
     if (!m) return null;
-    map.set(m[1], m[2] === "-" ? null : m[2]); // a later duplicate wins
+    map.set(m[1], m[2] === "-" ? null : m[2]); // a later duplicate wins; "?" stays "?"
   }
   return map;
 }
@@ -66,9 +69,14 @@ export function parseAnswers(text) {
 // ---------------------------------------------------------------------------
 // Grading + markdown (pure)
 // ---------------------------------------------------------------------------
+/**
+ * state: "ok" | "bad" | "idk" (weet ik niet: explanation shown) | "open"
+ * (skipped: NO explanation and no correct answer, so it can still be made later).
+ */
 export function grade(key, answers) {
   return key.questions.map((q, i) => {
     let chosen = answers.has(q.id) ? answers.get(q.id) : null;
+    if (chosen === "?") return { n: i + 1, q, chosen: null, state: "idk", feedback: q.feedback.wrong };
     if (chosen && !q.options.some((o) => o.id === chosen)) chosen = null; // e.g. "e" on a 4-option question
     const state = chosen == null ? "open" : chosen === q.correct ? "ok" : "bad";
     const feedback = state === "ok" ? q.feedback.correct : (chosen && q.feedback.byOption?.[chosen]) || q.feedback.wrong;
@@ -123,7 +131,7 @@ export function splitTip(text) {
   return { main: t.slice(0, i).trim(), tip: t.slice(i).replace(/^\s*Extra:\s*/, "").trim() };
 }
 
-const MARK = { ok: "🟩", bad: "🟥", open: "⬜" };
+const MARK = { ok: "🟩", bad: "🟥", idk: "🟨", open: "⬜" };
 
 /** A one-line text in bold; text with line breaks stays plain. */
 const strong = (text) => (/\n/.test(String(text).trim()) ? md(text) : `**${md(text)}**`);
@@ -138,7 +146,7 @@ function tipBox(tip, folded = false) {
   return [...(folded ? [] : ["> [!TIP]"]), ...lines.map((l) => `> ${l}`)];
 }
 
-export function buildMarkdown({ key, results, attempt, when, isTest, login, submittedVersion }) {
+export function buildMarkdown({ key, results, attempt, when, isTest, login, submittedVersion, quizUrl }) {
   const s = score(results);
   const base = results.filter((r) => !r.q.pro), pro = results.filter((r) => r.q.pro);
   const opt = (r, id) => r.q.options.find((o) => o.id === id)?.text ?? "";
@@ -160,22 +168,37 @@ export function buildMarkdown({ key, results, attempt, when, isTest, login, subm
     const pok = pro.filter((r) => r.state === "ok").length;
     L.push(`Pro-vragen: **${pok} van ${pro.length}** goed (telt apart).`, "");
   }
+  const later = results.filter((r) => r.state === "open");
+  if (later.length) L.push(`Je hebt **${results.length - later.length} van de ${results.length}** vragen gemaakt; ${later.length === 1 ? "één vraag staat" : `${later.length} vragen staan`} nog open (zie hieronder).`, "");
   if (base.length) {
     L.push("| Onderwerp | Per vraag | Goed |", "|:--|:--|--:|");
     for (const t of [...new Set(base.map((r) => r.q.topic))]) {
       const tr = base.filter((r) => r.q.topic === t), tok = tr.filter((r) => r.state === "ok").length;
       L.push(`| ${md(t)} | ${tr.map((r) => MARK[r.state]).join("")} | ${pct(tok, tr.length) < 60 ? "⚠️ " : ""}${tok}/${tr.length} |`);
     }
-    L.push("", "<sub>🟩 goed · 🟥 fout · ⬜ niet beantwoord · ⚠️ minder dan 60% goed: lees daar de uitleg en de theorie nog eens</sub>", "");
+    L.push("", "<sub>🟩 goed · 🟥 fout · 🟨 weet ik niet · ⬜ nog niet gemaakt · ⚠️ minder dan 60% goed: lees daar de uitleg en de theorie nog eens</sub>", "");
+  }
+
+  // ---- Skipped: no answer, no explanation, so they can still be made -------
+  if (later.length) {
+    const topics = [...new Set(later.map((r) => r.q.topic))];
+    L.push(`### ⬜ Nog niet gemaakt: ${later.length} ${later.length === 1 ? "vraag" : "vragen"}`, "");
+    for (const t of topics) {
+      const ns = later.filter((r) => r.q.topic === t).map((r) => r.n);
+      L.push(`- **${md(t)}**: ${ns.length === 1 ? "vraag" : "vragen"} ${ns.join(", ")}`);
+    }
+    L.push("", "> [!NOTE]",
+      "> Over deze vragen krijg je nog geen uitleg, zodat je ze later alsnog zelf kunt maken.  ",
+      `> Open ${quizUrl ? `[de quiz](${quizUrl})` : "de quiz"} opnieuw op **hetzelfde apparaat en in dezelfde browser**: je antwoorden staan er nog. Maak de rest en lever opnieuw in.`, "");
   }
 
   // ---- One wrong or unanswered question: a block of its own ----------------
   const card = (r) => {
-    const head = r.state === "bad" ? "🟥" : "⬜";
+    const head = MARK[r.state];
     const out = ["---", "", `### ${head} Vraag ${r.n} · ${md(r.q.topic)}`, "", strong(r.q.question), ""];
     if (r.q.code) out.push(fence(r.q.code, r.q.language || key.language || ""), "");
     out.push("| Jouw antwoord | Juiste antwoord |", "|:--|:--|");
-    out.push(`| ${r.chosen ? `❌ ${md(opt(r, r.chosen))}` : "_niet beantwoord_"} | ✅ ${md(opt(r, r.q.correct))} |`, "");
+    out.push(`| ${r.chosen ? `❌ ${md(opt(r, r.chosen))}` : "🟨 _weet ik niet_"} | ✅ ${md(opt(r, r.q.correct))} |`, "");
     const { main: text, tip } = splitTip(r.feedback);
     if (text) out.push(md(text), "");
     if (tip) out.push(...tipBox(tip), "");
@@ -197,9 +220,10 @@ export function buildMarkdown({ key, results, attempt, when, isTest, login, subm
   };
 
   const section = (rs) => {
-    const todo = rs.filter((r) => r.state !== "ok"), good = rs.filter((r) => r.state === "ok");
+    const todo = rs.filter((r) => r.state === "bad" || r.state === "idk"), good = rs.filter((r) => r.state === "ok");
     const out = [];
     if (todo.length) for (const r of todo) out.push(...card(r));
+    else if (rs.some((r) => r.state === "open")) out.push(good.length ? "Alles wat je gemaakt hebt, is goed. 🎉" : "Hier heb je nog niets gemaakt.", "");
     else out.push("Alles goed. Knap gedaan! 🎉", "");
     if (todo.length) out.push("---", "");
     out.push(...folded(good, "Goed beantwoord"));
@@ -207,7 +231,7 @@ export function buildMarkdown({ key, results, attempt, when, isTest, login, subm
   };
 
   if (base.length) {
-    const todo = base.filter((r) => r.state !== "ok").length;
+    const todo = base.filter((r) => r.state === "bad" || r.state === "idk").length;
     L.push(`## Nog even naar kijken${todo ? ` (${todo})` : ""}`, "");
     L.push(...section(base));
   }
@@ -330,7 +354,8 @@ export async function main() {
   }
   const isTest = isTeacher; // a lecturer always writes a recognisable test file
   const name = isTest ? `test-${author.toLowerCase()}-${when.stamp}` : when.stamp;
-  const content = buildMarkdown({ key, results, attempt, when, isTest, login: author, submittedVersion: quiz.version });
+  const quizUrl = `https://${org.toLowerCase()}.github.io/quiz/?q=${encodeURIComponent(quiz.id)}`;
+  const content = buildMarkdown({ key, results, attempt, when, isTest, login: author, submittedVersion: quiz.version, quizUrl });
   const written = await writeNewFile(repo, full, dir, name, content, `Quiz ${quiz.id} nagekeken (#${issue.number})`);
   console.log("Bestand geschreven.");
 
@@ -343,6 +368,8 @@ export async function main() {
     "",
     `Je feedback per vraag: [${written}](${link})`,
   ];
+  const later = results.filter((r) => r.state === "open").length;
+  if (later) lines.push("", `⬜ ${later} ${later === 1 ? "vraag heb" : "vragen heb"} je nog niet gemaakt. Daar krijg je nog geen uitleg over: open de quiz later opnieuw op hetzelfde apparaat, maak de rest en lever opnieuw in.`);
   if (quiz.version !== key.version) lines.push("", `⚠️ Je maakte een oudere versie van deze quiz (versie ${quiz.version}); er is nagekeken met versie ${key.version}.`);
   if (isTest) lines.push("", "_Testinzending van een docent._");
   await reply(lines.join("\n"));

@@ -83,6 +83,9 @@ pre.code { margin: 0 0 16px; padding: 12px 14px; background: var(--code-bg); bor
 .opt .label { min-width: 0; overflow-wrap: anywhere; padding-top: 2px; }
 .opt[aria-checked="true"] { border-color: var(--accent); background: var(--accent-soft); }
 .opt[aria-checked="true"] .key { background: var(--accent); color: var(--accent-fg); }
+.opt.idk { border-style: dashed; color: var(--muted); min-height: 48px; padding: 10px 14px; }
+.opt.idk[aria-checked="true"] { color: var(--fg); }
+.bar i.idk { background: var(--muted); }
 
 .nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; background: var(--surface); border-top: 1px solid var(--line); padding-top: 10px; padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 .nav-inner { max-width: 640px; margin: 0 auto; display: flex; gap: 10px; }
@@ -178,7 +181,9 @@ function load() {
   } catch (e) { return null; }
 }
 function save() { setLS(STORE, JSON.stringify(state)); }
+const IDK = "?"; // "weet ik niet": counts as answered, gets the explanation
 function answeredCount() { return Q().filter(q => state.answers[q.id]).length; }
+function idkCount() { return Q().filter(q => state.answers[q.id] === IDK).length; }
 function topics() { return [...new Set(Q().map(q => q.topic))]; }
 function firstOpen() { const i = Q().findIndex(q => !state.answers[q.id]); return i === -1 ? Q().length - 1 : i; }
 
@@ -238,7 +243,8 @@ function renderIntro() {
     el("ul", { class: "howto" },
       el("li", { text: "Kies bij elke vraag één antwoord. Je kunt terug om iets te veranderen." }),
       el("li", { text: "Je antwoorden worden op dit toestel bewaard, dus je kunt de pagina gerust sluiten en later verder." }),
-      el("li", { text: "Geen idee? Gok dan niet blind, maar sla de vraag over. Dan zie je straks eerlijker waar je staat." }),
+      el("li", { text: "Geen idee? Gok dan niet blind, maar kies “Weet ik niet”. Dan krijg je straks het juiste antwoord en de uitleg, en zie je eerlijker waar je staat." }),
+      el("li", { text: "Geen tijd meer? Sla de rest over en lever in. Over overgeslagen vragen krijg je nog geen uitleg, zodat je ze later op dit toestel alsnog kunt maken en opnieuw kunt inleveren." }),
       nPro ? el("li", { text: `${nPro} ${nPro === 1 ? "vraag is" : "vragen zijn"} voor de pro's: extra pittig. Fout is daar helemaal oké.` }) : null,
       el("li", { text: "Aan het eind lever je in op GitHub. Je score en de uitleg bij elke vraag komen in je eigen progress-repo." })),
     el("div", { class: "topics" }, ...topics().map(t => el("span", { class: "chip", text: t }))),
@@ -253,7 +259,7 @@ function renderQuestion() {
   const i = state.i, q = Q()[i], perm = state.perms[q.id];
   const text = Object.fromEntries(q.options.map(o => [o.id, o.text]));
   const bar = el("div", { class: "bar", "aria-hidden": "true" },
-    ...Q().map((x, k) => el("i", { class: k === i ? "now" : (state.answers[x.id] ? "done" : "") })));
+    ...Q().map((x, k) => el("i", { class: k === i ? "now" : (state.answers[x.id] === IDK ? "idk" : state.answers[x.id] ? "done" : "") })));
   const opts = el("div", { class: "opts", role: "radiogroup", "aria-label": "Antwoorden" });
   perm.forEach((id, pos) => {
     opts.append(el("button", {
@@ -261,6 +267,10 @@ function renderQuestion() {
       onclick: () => { state.answers[q.id] = id; pendingConfirm = null; save(); render(); }
     }, el("span", { class: "key", text: LETTERS[pos] }), el("span", { class: "label", text: text[id] })));
   });
+  opts.append(el("button", {
+    class: "opt idk", role: "radio", "aria-checked": String(state.answers[q.id] === IDK), id: `opt-${i}-idk`,
+    onclick: () => { state.answers[q.id] = IDK; pendingConfirm = null; save(); render(); }
+  }, el("span", { class: "key", text: "?" }), el("span", { class: "label", text: "Weet ik niet" })));
   if (q.pro && (i === 0 || !Q()[i - 1].pro)) {
     app.append(el("div", { class: "probanner" },
       el("div", { class: "eyebrow", text: "Bonusronde" }),
@@ -274,13 +284,13 @@ function renderQuestion() {
         el("span", { class: q.pro ? "chip pro" : "chip", text: q.topic })),
       bar),
     el("p", { class: "qtext", text: q.question }),
-    q.code ? el("pre", { class: "code" }, el("code", { text: q.code })) : null,
+    ...(q.code ? [el("pre", { class: "code" }, el("code", { text: q.code }))] : []), // DOM append() would print "null"
     opts);
 
   if (pendingConfirm === "submit") {
     const open = Q().length - answeredCount();
     app.append(el("div", { class: "notice", role: "alert" },
-      el("p", { text: `Je hebt ${open} ${open === 1 ? "vraag" : "vragen"} nog niet beantwoord. Die tellen als niet goed. Toch afronden?` }),
+      el("p", { text: `Je hebt ${open} ${open === 1 ? "vraag" : "vragen"} overgeslagen. Daar krijg je nog geen uitleg over: je kunt ze later op dit toestel alsnog maken en opnieuw inleveren. Nu afronden?` }),
       el("div", { class: "btn-row" },
         el("button", { class: "btn btn-primary", id: "confirmSubmit", onclick: () => go("finish"), text: "Ja, afronden" }),
         el("button", { class: "btn btn-ghost", id: "gotoOpen", onclick: () => go("quiz", firstOpen()), text: "Naar eerste open vraag" }))));
@@ -354,7 +364,8 @@ function renderFinish() {
   app.append(el("div", { class: "intro" },
     el("div", { class: "eyebrow", text: "Inleveren" }),
     el("h1", { text: "Lever je antwoorden in op GitHub" }),
-    el("p", { class: "lead", text: `Je hebt ${answeredCount()} van de ${Q().length} vragen beantwoord.` + (open ? ` ${open} ${open === 1 ? "vraag telt" : "vragen tellen"} als niet beantwoord.` : "") }),
+    el("p", { class: "lead", text: `Je hebt ${answeredCount()} van de ${Q().length} vragen beantwoord` + (idkCount() ? ` (waarvan ${idkCount()} keer “weet ik niet”)` : "") + "." +
+      (open ? ` ${open} ${open === 1 ? "vraag heb" : "vragen heb"} je overgeslagen: open deze pagina later opnieuw op dit toestel om ${open === 1 ? "hem" : "ze"} alsnog te maken, en lever dan opnieuw in.` : "") }),
     el("label", { for: "login", class: "field-label", text: "Je GitHub-gebruikersnaam" }),
     input, err,
     el("ol", { class: "steps" },
