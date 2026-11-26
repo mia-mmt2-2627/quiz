@@ -115,51 +115,108 @@ export function scoreLine(s) {
   return main;
 }
 
+/** Splits feedback into the explanation and an optional tip after "Extra:". */
+export function splitTip(text) {
+  const t = String(text ?? "").trim();
+  const i = t.search(/(^|\s)Extra:\s/);
+  if (i === -1) return { main: t, tip: "" };
+  return { main: t.slice(0, i).trim(), tip: t.slice(i).replace(/^\s*Extra:\s*/, "").trim() };
+}
+
+const MARK = { ok: "🟩", bad: "🟥", open: "⬜" };
+
+/** A one-line text in bold; text with line breaks stays plain. */
+const strong = (text) => (/\n/.test(String(text).trim()) ? md(text) : `**${md(text)}**`);
+
+/**
+ * Markdown lines of a tip. GitHub's "> [!TIP]" box only renders outside
+ * <details>, so inside a folded block it is a plain quote with 💡.
+ */
+function tipBox(tip, folded = false) {
+  const lines = md(tip).split("\n");
+  if (folded) lines[0] = `💡 ${lines[0]}`;
+  return [...(folded ? [] : ["> [!TIP]"]), ...lines.map((l) => `> ${l}`)];
+}
+
 export function buildMarkdown({ key, results, attempt, when, isTest, login, submittedVersion }) {
   const s = score(results);
-  const L = [];
-  L.push(`# ${md(key.title)}`, "");
-  L.push("> Oefenquiz: telt niet mee voor je cijfer.", "");
-  L.push(`${isTest ? `**Testinzending** van ${md(login)}` : `**Poging ${attempt}**`} · ${when.nice} · versie ${key.version}`, "");
-  if (submittedVersion !== key.version) {
-    L.push(`> ⚠️ Je maakte een oudere versie van deze quiz (versie ${submittedVersion}). Er is nagekeken met versie ${key.version}; vragen die niet meer bestaan, tellen niet mee.`, "");
-  }
-  L.push(`## Score: ${scoreLine(s)}`, "");
-
-  const topicRows = (rs) => {
-    const topics = [...new Set(rs.map((r) => r.q.topic))];
-    const rows = ["| Onderwerp | Goed | |", "|---|--:|--:|"];
-    for (const t of topics) {
-      const tr = rs.filter((r) => r.q.topic === t), ok = tr.filter((r) => r.state === "ok").length, p = pct(ok, tr.length);
-      rows.push(`| ${md(t)} | ${ok}/${tr.length} | ${p < 60 ? `⚠️ **${p}%**` : `${p}%`} |`);
-    }
-    return rows;
-  };
   const base = results.filter((r) => !r.q.pro), pro = results.filter((r) => r.q.pro);
-  if (base.length) L.push(...topicRows(base), "");
-  if (base.length && results.some((r) => r.state !== "ok")) L.push("⚠️ = minder dan 60% goed: lees de uitleg bij die vragen en de theorie nog eens.", "");
-  if (pro.length) {
-    const ok = pro.filter((r) => r.state === "ok").length;
-    L.push(`**Pro-vragen:** ${ok} van ${pro.length} goed${base.length ? " (telt apart)" : ""}.`, "");
+  const opt = (r, id) => r.q.options.find((o) => o.id === id)?.text ?? "";
+  const L = [];
+
+  // ---- Header -------------------------------------------------------------
+  L.push(`# ${md(key.title)}`, "");
+  L.push(`${isTest ? `**Testinzending** van ${md(login)}` : `**Poging ${attempt}**`} · ${when.nice}  `);
+  L.push(`<sub>Oefenquiz: telt niet mee voor je cijfer · versie ${key.version}</sub>`, "");
+  if (submittedVersion !== key.version) {
+    L.push("> [!WARNING]", `> Je maakte een oudere versie van deze quiz (versie ${submittedVersion}). Er is nagekeken met versie ${key.version}; vragen die niet meer bestaan, tellen niet mee.`, "");
   }
 
+  // ---- Score --------------------------------------------------------------
+  const main = base.length ? base : pro;
+  const ok = main.filter((r) => r.state === "ok").length;
+  L.push(`## ${ok} van ${main.length} goed · ${pct(ok, main.length)}%`, "");
+  if (base.length && pro.length) {
+    const pok = pro.filter((r) => r.state === "ok").length;
+    L.push(`Pro-vragen: **${pok} van ${pro.length}** goed (telt apart).`, "");
+  }
+  if (base.length) {
+    L.push("| Onderwerp | Per vraag | Goed |", "|:--|:--|--:|");
+    for (const t of [...new Set(base.map((r) => r.q.topic))]) {
+      const tr = base.filter((r) => r.q.topic === t), tok = tr.filter((r) => r.state === "ok").length;
+      L.push(`| ${md(t)} | ${tr.map((r) => MARK[r.state]).join("")} | ${pct(tok, tr.length) < 60 ? "⚠️ " : ""}${tok}/${tr.length} |`);
+    }
+    L.push("", "<sub>🟩 goed · 🟥 fout · ⬜ niet beantwoord · ⚠️ minder dan 60% goed: lees daar de uitleg en de theorie nog eens</sub>", "");
+  }
+
+  // ---- One wrong or unanswered question: a block of its own ----------------
   const card = (r) => {
-    const badge = r.state === "ok" ? "✅ goed" : r.state === "bad" ? "❌ fout" : "⚪ niet beantwoord";
-    const opt = (id) => r.q.options.find((o) => o.id === id)?.text ?? "";
-    const out = [`### ${r.n}. ${md(r.q.topic)} — ${badge}`, "", md(r.q.question), ""];
+    const head = r.state === "bad" ? "🟥" : "⬜";
+    const out = ["---", "", `### ${head} Vraag ${r.n} · ${md(r.q.topic)}`, "", strong(r.q.question), ""];
     if (r.q.code) out.push(fence(r.q.code, r.q.language || key.language || ""), "");
-    out.push(`- **Jouw antwoord:** ${r.chosen ? md(opt(r.chosen)) : "_niet beantwoord_"}`);
-    if (r.state !== "ok") out.push(`- **Juiste antwoord:** ${md(opt(r.q.correct))}`);
-    out.push("", md(r.feedback), "");
+    out.push("| Jouw antwoord | Juiste antwoord |", "|:--|:--|");
+    out.push(`| ${r.chosen ? `❌ ${md(opt(r, r.chosen))}` : "_niet beantwoord_"} | ✅ ${md(opt(r, r.q.correct))} |`, "");
+    const { main: text, tip } = splitTip(r.feedback);
+    if (text) out.push(md(text), "");
+    if (tip) out.push(...tipBox(tip), "");
     return out;
   };
-  if (base.length) { L.push("## Per vraag", ""); for (const r of base) L.push(...card(r)); }
-  if (pro.length) {
-    L.push("## Voor de pro's", "");
-    if (key.bonus?.text) L.push(md(key.bonus.text), "");
-    for (const r of pro) L.push(...card(r));
+
+  // ---- Correct answers: folded away, short --------------------------------
+  const folded = (rs, label) => {
+    if (!rs.length) return [];
+    const out = ["<details>", `<summary><b>🟩 ${label}: ${rs.length} ${rs.length === 1 ? "vraag" : "vragen"}</b> (klik voor de uitleg en extra tips)</summary>`, ""];
+    for (const r of rs) {
+      const { main: text, tip } = splitTip(r.feedback);
+      out.push("---", "", `**Vraag ${r.n} · ${md(r.q.topic)}**  `, md(r.q.question), "", `✅ ${md(opt(r, r.chosen))}`, "");
+      if (text && text.length > 15) out.push(md(text), ""); // more than "Klopt!"
+      if (tip) out.push(...tipBox(tip, true), "");
+    }
+    out.push("</details>", "");
+    return out;
+  };
+
+  const section = (rs) => {
+    const todo = rs.filter((r) => r.state !== "ok"), good = rs.filter((r) => r.state === "ok");
+    const out = [];
+    if (todo.length) for (const r of todo) out.push(...card(r));
+    else out.push("Alles goed. Knap gedaan! 🎉", "");
+    if (todo.length) out.push("---", "");
+    out.push(...folded(good, "Goed beantwoord"));
+    return out;
+  };
+
+  if (base.length) {
+    const todo = base.filter((r) => r.state !== "ok").length;
+    L.push(`## Nog even naar kijken${todo ? ` (${todo})` : ""}`, "");
+    L.push(...section(base));
   }
-  L.push("---", "", "_Opnieuw proberen mag altijd: elke inzending krijgt een eigen bestand in deze map._", "");
+  if (pro.length) {
+    L.push("<br>", "", "## Voor de pro's", "");
+    if (key.bonus?.text) L.push(`<sub>${md(key.bonus.text)}</sub>`, "");
+    L.push(...section(pro));
+  }
+  L.push("<br>", "", "<sub>Opnieuw proberen mag altijd: elke inzending krijgt een eigen bestand in deze map.</sub>", "");
   return L.join("\n");
 }
 
