@@ -1,0 +1,62 @@
+# Reusable workflow: grades one quiz submission. Called by
+# .github/workflows/quiz.yml in every <login>-progress repo (issues: opened).
+#
+# Generated from student-onboarding (quiz/public-repo/); edits here are
+# overwritten on the next publish.
+#
+# Safety: students can read the logs of this run. No issue text is ever used
+# in a shell line (the script reads the event file itself), and nothing from
+# the key is printed. The App token can only READ quiz-engine.
+name: Quiz nakijken (herbruikbaar)
+
+on:
+  workflow_call:
+    secrets:
+      QUIZ_APP_CLIENT_ID:
+        required: true
+      QUIZ_APP_PRIVATE_KEY:
+        required: true
+
+permissions: {}
+
+jobs:
+  grade:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write # write the result file in the student's progress repo
+      issues: write   # comment and close the issue
+    steps:
+      - name: Nakijkcode ophalen
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ github.repository_owner }}/quiz
+          ref: main
+          path: grader
+          sparse-checkout: scripts
+          persist-credentials: false
+
+      - name: Token voor quiz-engine (alleen lezen)
+        id: app
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ secrets.QUIZ_APP_CLIENT_ID }}
+          private-key: ${{ secrets.QUIZ_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: quiz-engine
+          permission-contents: read
+
+      - name: Nakijken
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          QUIZ_ENGINE_TOKEN: ${{ steps.app.outputs.token }}
+        run: node grader/scripts/grade.mjs
+
+      - name: Melding bij een fout
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          ISSUE: ${{ github.event.issue.number }}
+        run: |
+          gh issue comment "$ISSUE" --repo "$REPO" --body "Er ging iets mis bij het nakijken. Je docent ziet dit in het overzicht; je hoeft niets te doen. Probeer het later gerust opnieuw via de quizlink."

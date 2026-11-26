@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quiz</title>
+<!--
+  One page for every quiz: ?q=<quiz-id> loads quizzes/<quiz-id>.json.
+  This page never contains correct answers or feedback; grading happens on
+  GitHub after the student submits. Generated from student-onboarding
+  (quiz/public-repo/index.html); edits in the `quiz` repo are overwritten.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Press+Start+2P&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+:root {
+  --bg: #f2f3f8; --surface: #ffffff; --fg: #161a2b; --muted: #5a6079; --line: #dcdfea;
+  --accent: #3043cf; --accent-fg: #ffffff; --accent-soft: #e6e9fb;
+  --ok: #1d7f47; --ok-bg: #e2f3e9; --bad: #be2b37; --bad-bg: #fbe5e7; --code-bg: #eceef6;
+  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-code: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-pixel: "Press Start 2P", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1120; --surface: #171b2d; --fg: #e8eaf4; --muted: #9ea4bf; --line: #2a2f47;
+    --accent: #8191ff; --accent-fg: #0e1120; --accent-soft: #1f2547;
+    --ok: #4cc483; --ok-bg: #13301f; --bad: #ff6f79; --bad-bg: #3a1a20; --code-bg: #11152a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1120; --surface: #171b2d; --fg: #e8eaf4; --muted: #9ea4bf; --line: #2a2f47;
+  --accent: #8191ff; --accent-fg: #0e1120; --accent-soft: #1f2547;
+  --ok: #4cc483; --ok-bg: #13301f; --bad: #ff6f79; --bad-bg: #3a1a20; --code-bg: #11152a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 16px; line-height: 1.55; -webkit-text-size-adjust: 100%; }
+.wrap { max-width: 640px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 120px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.2; }
+p { margin: 0; }
+a { color: var(--accent); }
+button { font: inherit; color: inherit; }
+button:focus-visible, .opt:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.eyebrow { font-family: var(--font-pixel); font-size: 10px; letter-spacing: 0.06em; color: var(--accent); text-transform: uppercase; }
+
+.intro { display: grid; gap: 20px; padding-top: 12px; }
+.intro h1 { font-size: clamp(30px, 8vw, 40px); }
+.lead { font-size: 17px; color: var(--muted); max-width: 60ch; white-space: pre-line; }
+.facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.fact { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+.fact b { display: block; font-family: var(--font-display); font-size: 22px; font-variant-numeric: tabular-nums; }
+.fact span { font-size: 13px; color: var(--muted); }
+.howto { display: grid; gap: 8px; padding: 0; margin: 0; list-style: none; }
+.howto li { display: flex; gap: 10px; align-items: baseline; }
+.howto li::before { content: "▸"; color: var(--accent); flex: none; }
+.topics { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: 12px; padding: 3px 9px; border-radius: 999px; background: var(--accent-soft); color: var(--fg); }
+.chip.pro { background: var(--accent); color: var(--accent-fg); }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 50px; padding: 0 22px; border-radius: 12px; border: 1px solid transparent; font-weight: 600; cursor: pointer; text-align: center; text-decoration: none; }
+.btn-primary { background: var(--accent); color: var(--accent-fg); }
+.btn-ghost { background: transparent; border-color: var(--line); color: var(--fg); }
+.btn[disabled], .btn[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; }
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn-row .btn { flex: 1 1 160px; }
+
+.qhead { display: grid; gap: 10px; margin-bottom: 18px; }
+.qmeta { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.qnum { font-family: var(--font-pixel); font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.bar { display: flex; gap: 2px; height: 8px; }
+.bar i { flex: 1; background: var(--line); border-radius: 1px; }
+.bar i.done { background: var(--accent); }
+.bar i.now { background: var(--fg); }
+.qtext { font-family: var(--font-display); font-size: 21px; font-weight: 500; line-height: 1.35; margin-bottom: 14px; white-space: pre-line; overflow-wrap: anywhere; }
+pre.code { margin: 0 0 16px; padding: 12px 14px; background: var(--code-bg); border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; font-family: var(--font-code); font-size: 13.5px; line-height: 1.6; white-space: pre; tab-size: 2; }
+.opts { display: grid; gap: 10px; }
+.opt { display: flex; gap: 12px; align-items: flex-start; width: 100%; text-align: left; padding: 14px; border-radius: 12px; border: 2px solid var(--line); background: var(--surface); cursor: pointer; min-height: 56px; }
+.opt .key { flex: none; width: 28px; height: 28px; border-radius: 7px; display: grid; place-items: center; font-family: var(--font-pixel); font-size: 10px; background: var(--code-bg); color: var(--muted); }
+.opt .label { min-width: 0; overflow-wrap: anywhere; padding-top: 2px; }
+.opt[aria-checked="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.opt[aria-checked="true"] .key { background: var(--accent); color: var(--accent-fg); }
+
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; background: var(--surface); border-top: 1px solid var(--line); padding-top: 10px; padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.nav-inner { max-width: 640px; margin: 0 auto; display: flex; gap: 10px; }
+.nav .btn { flex: 1; }
+.nav .btn-ghost { flex: 0 0 auto; }
+.notice { margin-top: 16px; padding: 12px 14px; border-radius: 10px; background: var(--bad-bg); color: var(--fg); font-size: 14px; display: grid; gap: 10px; }
+.note { padding: 12px 14px; border-radius: 10px; background: var(--ok-bg); font-size: 14.5px; display: grid; gap: 6px; }
+.probanner { display: grid; gap: 8px; padding: 16px; margin-bottom: 20px; border-radius: 14px; border: 2px dashed var(--accent); background: var(--accent-soft); }
+.probanner h2 { font-size: 20px; }
+.probanner p { font-size: 15px; color: var(--muted); }
+
+.field-label { font-weight: 600; font-size: 14px; margin-bottom: -12px; }
+.field { width: 100%; min-height: 52px; padding: 0 14px; border-radius: 12px; border: 2px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; font-size: 17px; }
+.field:focus { outline: none; border-color: var(--accent); }
+.field-err { color: var(--bad); font-size: 14px; min-height: 1.2em; margin-top: -10px; }
+.steps { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.fallback { display: grid; gap: 8px; font-size: 14px; color: var(--muted); }
+.fallback textarea { width: 100%; min-height: 84px; padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--code-bg); color: var(--fg); font-family: var(--font-code); font-size: 12px; resize: vertical; }
+
+.list { display: grid; gap: 10px; }
+.qcard { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); }
+.qcard h2 { font-size: 18px; }
+.qcard.closed { opacity: 0.55; }
+.qcard .meta { font-size: 13px; color: var(--muted); }
+.empty { color: var(--muted); padding: 20px 0; }
+
+@media (prefers-reduced-motion: no-preference) { .opt { transition: border-color .12s, background-color .12s; } }
+@media (max-width: 380px) { .fact b { font-size: 19px; } .qtext { font-size: 19px; } }
+</style>
+</head>
+<body>
+<div class="wrap" id="app" aria-live="polite"></div>
+<div class="nav" id="nav" hidden><div class="nav-inner" id="navInner"></div></div>
+
+<script>
+"use strict";
+const LETTERS = ["A", "B", "C", "D", "E", "F"];
+const LOGIN_RE = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
+const LOGIN_KEY = "quiz-github-login";
+const app = document.getElementById("app");
+const nav = document.getElementById("nav");
+const navInner = document.getElementById("navInner");
+
+let ORG = "";        // from quizzes/index.json
+let QUIZ = null;     // the public quiz file: questions and options, no answers
+let STORE = "";      // localStorage key per quiz and version
+let state = null;
+let pendingConfirm = null;
+
+// ---------- helpers ----------
+function el(tag, attrs = {}, ...kids) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (v == null) continue;
+    if (k === "class") n.className = v;
+    else if (k === "text") n.textContent = v;
+    else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+    else n.setAttribute(k, v);
+  }
+  for (const k of kids) if (k != null) n.append(k);
+  return n;
+}
+function getLS(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function setLS(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+async function getJson(url) {
+  const res = await fetch(url, { cache: "no-cache" });
+  if (!res.ok) throw Object.assign(new Error("HTTP " + res.status), { status: res.status });
+  return res.json();
+}
+const Q = () => QUIZ.questions;
+
+// ---------- state per quiz ----------
+function fresh() {
+  const perms = {};
+  for (const q of Q()) perms[q.id] = shuffle(q.options.map(o => o.id));
+  return { view: "intro", i: 0, answers: {}, perms };
+}
+function load() {
+  try {
+    const s = JSON.parse(getLS(STORE));
+    if (!s || typeof s !== "object" || !s.perms || !s.answers) return null;
+    for (const q of Q()) {
+      const p = s.perms[q.id];
+      if (!Array.isArray(p) || p.length !== q.options.length || !q.options.every(o => p.includes(o.id))) return null;
+    }
+    if (!(s.i >= 0 && s.i < Q().length)) s.i = 0;
+    return s;
+  } catch (e) { return null; }
+}
+function save() { setLS(STORE, JSON.stringify(state)); }
+function answeredCount() { return Q().filter(q => state.answers[q.id]).length; }
+function topics() { return [...new Set(Q().map(q => q.topic))]; }
+function firstOpen() { const i = Q().findIndex(q => !state.answers[q.id]); return i === -1 ? Q().length - 1 : i; }
+
+function go(view, i) {
+  state.view = view;
+  if (i != null) state.i = i;
+  pendingConfirm = null;
+  save(); render(); window.scrollTo(0, 0);
+}
+function render() {
+  app.replaceChildren(); navInner.replaceChildren(); nav.hidden = true;
+  if (state.view === "quiz") renderQuestion();
+  else if (state.view === "finish") renderFinish();
+  else renderIntro();
+}
+
+// ---------- screens without a quiz ----------
+function renderMessage(title, text, withList) {
+  app.replaceChildren(el("div", { class: "intro" },
+    el("div", { class: "eyebrow", text: "Quiz" }),
+    el("h1", { text: title }),
+    el("p", { class: "lead", text }),
+    withList ? el("div", { class: "btn-row" }, el("a", { class: "btn btn-primary", href: "./", text: "Naar alle quizzen" })) : null));
+}
+function renderList(index) {
+  document.title = "Quizzen";
+  const items = (index.quizzes || []).filter(q => q.status === "open" || q.status === "closed")
+    .sort((a, b) => (a.status === b.status ? 0 : a.status === "open" ? -1 : 1));
+  const list = el("div", { class: "list" });
+  for (const q of items) {
+    const open = q.status === "open";
+    list.append(el("div", { class: "qcard" + (open ? "" : " closed") },
+      el("div", {}, el("h2", { text: q.title }), el("p", { class: "meta", text: open ? "Open" : "Gesloten" })),
+      open ? el("a", { class: "btn btn-primary", href: "?q=" + encodeURIComponent(q.id), text: "Start" }) : null));
+  }
+  if (!items.length) list.append(el("p", { class: "empty", text: "Er staan op dit moment geen quizzen open." }));
+  app.replaceChildren(el("div", { class: "intro" },
+    el("div", { class: "eyebrow", text: ORG }),
+    el("h1", { text: "Quizzen" }),
+    el("p", { class: "lead", text: "Oefenquizzen: ze tellen niet mee voor je cijfer. Na het inleveren krijg je per vraag uitleg in je eigen progress-repo op GitHub." }),
+    list));
+}
+
+// ---------- intro ----------
+function renderIntro() {
+  const started = answeredCount() > 0;
+  const nPro = Q().filter(q => q.pro).length;
+  app.append(el("div", { class: "intro" },
+    el("div", { class: "eyebrow", text: QUIZ.status === "draft" ? "Concept · alleen voor docenten" : "Oefenquiz" }),
+    el("h1", { text: QUIZ.title }),
+    QUIZ.intro ? el("p", { class: "lead", text: QUIZ.intro }) : null,
+    QUIZ.status === "draft" ? el("p", { class: "notice", text: "Deze quiz is nog een concept. Hij staat niet in de lijst en wordt alleen voor docenten nagekeken." }) : null,
+    el("div", { class: "facts" },
+      el("div", { class: "fact" }, el("b", { text: String(Q().length) }), el("span", { text: "vragen" })),
+      el("div", { class: "fact" }, el("b", { text: String(topics().length) }), el("span", { text: topics().length === 1 ? "onderwerp" : "onderwerpen" })),
+      el("div", { class: "fact" }, el("b", { text: "0" }), el("span", { text: "punten voor je cijfer" }))),
+    el("ul", { class: "howto" },
+      el("li", { text: "Kies bij elke vraag één antwoord. Je kunt terug om iets te veranderen." }),
+      el("li", { text: "Je antwoorden worden op dit toestel bewaard, dus je kunt de pagina gerust sluiten en later verder." }),
+      el("li", { text: "Geen idee? Gok dan niet blind, maar sla de vraag over. Dan zie je straks eerlijker waar je staat." }),
+      nPro ? el("li", { text: `${nPro} ${nPro === 1 ? "vraag is" : "vragen zijn"} voor de pro's: extra pittig. Fout is daar helemaal oké.` }) : null,
+      el("li", { text: "Aan het eind lever je in op GitHub. Je score en de uitleg bij elke vraag komen in je eigen progress-repo." })),
+    el("div", { class: "topics" }, ...topics().map(t => el("span", { class: "chip", text: t }))),
+    el("div", { class: "btn-row" },
+      el("button", { class: "btn btn-primary", id: "startBtn", onclick: () => go("quiz", started ? firstOpen() : 0),
+        text: started ? `Verder (${answeredCount()}/${Q().length} beantwoord)` : "Start de quiz" }),
+      started ? el("button", { class: "btn btn-ghost", id: "resetBtn", onclick: () => { state = fresh(); go("quiz", 0); }, text: "Opnieuw beginnen" }) : null)));
+}
+
+// ---------- question ----------
+function renderQuestion() {
+  const i = state.i, q = Q()[i], perm = state.perms[q.id];
+  const text = Object.fromEntries(q.options.map(o => [o.id, o.text]));
+  const bar = el("div", { class: "bar", "aria-hidden": "true" },
+    ...Q().map((x, k) => el("i", { class: k === i ? "now" : (state.answers[x.id] ? "done" : "") })));
+  const opts = el("div", { class: "opts", role: "radiogroup", "aria-label": "Antwoorden" });
+  perm.forEach((id, pos) => {
+    opts.append(el("button", {
+      class: "opt", role: "radio", "aria-checked": String(state.answers[q.id] === id), id: `opt-${i}-${pos}`,
+      onclick: () => { state.answers[q.id] = id; pendingConfirm = null; save(); render(); }
+    }, el("span", { class: "key", text: LETTERS[pos] }), el("span", { class: "label", text: text[id] })));
+  });
+  if (q.pro && (i === 0 || !Q()[i - 1].pro)) {
+    app.append(el("div", { class: "probanner" },
+      el("div", { class: "eyebrow", text: "Bonusronde" }),
+      el("h2", { text: QUIZ.bonus?.title || "Voor de pro's" }),
+      QUIZ.bonus?.text ? el("p", { text: QUIZ.bonus.text }) : null));
+  }
+  app.append(
+    el("div", { class: "qhead" },
+      el("div", { class: "qmeta" },
+        el("span", { class: "qnum", text: `${i + 1}/${Q().length}` }),
+        el("span", { class: q.pro ? "chip pro" : "chip", text: q.topic })),
+      bar),
+    el("p", { class: "qtext", text: q.question }),
+    q.code ? el("pre", { class: "code" }, el("code", { text: q.code })) : null,
+    opts);
+
+  if (pendingConfirm === "submit") {
+    const open = Q().length - answeredCount();
+    app.append(el("div", { class: "notice", role: "alert" },
+      el("p", { text: `Je hebt ${open} ${open === 1 ? "vraag" : "vragen"} nog niet beantwoord. Die tellen als niet goed. Toch afronden?` }),
+      el("div", { class: "btn-row" },
+        el("button", { class: "btn btn-primary", id: "confirmSubmit", onclick: () => go("finish"), text: "Ja, afronden" }),
+        el("button", { class: "btn btn-ghost", id: "gotoOpen", onclick: () => go("quiz", firstOpen()), text: "Naar eerste open vraag" }))));
+  }
+  const last = i === Q().length - 1;
+  navInner.append(
+    el("button", { class: "btn btn-ghost", id: "prevBtn", onclick: () => i === 0 ? go("intro") : go("quiz", i - 1), text: "Vorige" }),
+    last
+      ? el("button", { class: "btn btn-primary", id: "finishBtn", onclick: () => {
+          if (answeredCount() < Q().length) { pendingConfirm = "submit"; render(); window.scrollTo(0, document.body.scrollHeight); }
+          else go("finish");
+        }, text: "Afronden" })
+      : el("button", { class: "btn btn-primary", id: "nextBtn", onclick: () => go("quiz", i + 1), text: state.answers[q.id] ? "Volgende" : "Overslaan" }));
+  nav.hidden = false;
+}
+
+// ---------- submit ----------
+function submitUrl(login) {
+  const answers = Q().map(q => `${q.id}:${state.answers[q.id] || "-"}`).join(",");
+  return `https://github.com/${encodeURIComponent(ORG)}/${encodeURIComponent(login + "-progress")}/issues/new` +
+    `?template=quiz.yml` +
+    `&title=${encodeURIComponent("Quiz: " + QUIZ.title)}` +
+    `&quiz=${encodeURIComponent(QUIZ.id + "@" + QUIZ.version)}` +
+    `&antwoorden=${encodeURIComponent(answers)}`;
+}
+function renderFinish() {
+  const input = el("input", { id: "login", type: "text", autocomplete: "username", autocapitalize: "off", spellcheck: "false", placeholder: "bijv. jouw-naam", class: "field" });
+  input.value = getLS(LOGIN_KEY) || "";
+  const err = el("p", { class: "field-err", id: "loginErr", role: "alert" });
+  const go_ = el("a", { class: "btn btn-primary", id: "submitBtn", target: "_blank", rel: "noopener", text: "Inleveren op GitHub" });
+  const fbText = el("textarea", { readonly: "", id: "fallbackUrl", "aria-label": "Inleverlink" });
+  const copyBtn = el("button", { class: "btn btn-ghost", type: "button", id: "copyBtn", text: "Kopieer link" });
+  const fallback = el("div", { class: "fallback" },
+    el("p", { text: "Opent er geen nieuw tabblad? Kopieer dan deze link en plak hem in de adresbalk:" }), fbText, copyBtn);
+  const repoLink = el("a", { target: "_blank", rel: "noopener" });
+  const after = el("div", { class: "note" }, el("p", {}, "Ingeleverd? Je feedback staat binnen een minuut in ", repoLink, "."));
+
+  function update() {
+    const login = input.value.trim().replace(/^@/, "");
+    const ok = LOGIN_RE.test(login);
+    err.textContent = !login || ok ? "" : "Dit is geen geldige GitHub-gebruikersnaam.";
+    if (ok) {
+      setLS(LOGIN_KEY, login);
+      const url = submitUrl(login);
+      go_.href = url; go_.removeAttribute("aria-disabled");
+      fbText.value = url; fallback.hidden = false;
+      repoLink.href = `https://github.com/${encodeURIComponent(ORG)}/${encodeURIComponent(login + "-progress")}/tree/main/quiz`;
+      repoLink.textContent = `${login}-progress/quiz`;
+      after.hidden = false;
+    } else {
+      go_.removeAttribute("href"); go_.setAttribute("aria-disabled", "true");
+      fallback.hidden = true; after.hidden = true;
+    }
+  }
+  input.addEventListener("input", update);
+  go_.addEventListener("click", ev => { if (go_.getAttribute("aria-disabled") === "true") { ev.preventDefault(); input.focus(); err.textContent = "Vul eerst je GitHub-gebruikersnaam in."; } });
+  copyBtn.addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(fbText.value); copyBtn.textContent = "Gekopieerd"; }
+    catch (e) { fbText.select(); }
+  });
+
+  const open = Q().length - answeredCount();
+  const restart = pendingConfirm === "restart"
+    ? el("div", { class: "notice", role: "alert" },
+        el("p", { text: "Je antwoorden worden gewist en de antwoorden komen in een nieuwe volgorde. Doorgaan?" }),
+        el("div", { class: "btn-row" },
+          el("button", { class: "btn btn-primary", id: "confirmRestart", onclick: () => { state = fresh(); go("quiz", 0); }, text: "Ja, opnieuw" }),
+          el("button", { class: "btn btn-ghost", id: "cancelRestart", onclick: () => { pendingConfirm = null; render(); }, text: "Annuleren" })))
+    : null;
+
+  app.append(el("div", { class: "intro" },
+    el("div", { class: "eyebrow", text: "Inleveren" }),
+    el("h1", { text: "Lever je antwoorden in op GitHub" }),
+    el("p", { class: "lead", text: `Je hebt ${answeredCount()} van de ${Q().length} vragen beantwoord.` + (open ? ` ${open} ${open === 1 ? "vraag telt" : "vragen tellen"} als niet beantwoord.` : "") }),
+    el("label", { for: "login", class: "field-label", text: "Je GitHub-gebruikersnaam" }),
+    input, err,
+    el("ol", { class: "steps" },
+      el("li", {}, "Klik op ", el("b", { text: "Inleveren op GitHub" }), ". Je komt op GitHub met alles al ingevuld."),
+      el("li", {}, "Klik alleen op ", el("b", { text: "Submit new issue" }), " en verander niets aan de tekst."),
+      el("li", {}, "Je feedback verschijnt binnen een minuut in je progress-repo in de map ", el("code", { text: "quiz/" }), ". Elke keer dat je inlevert, krijg je een nieuw bestand.")),
+    el("div", { class: "btn-row" }, go_),
+    after, fallback,
+    el("div", { class: "btn-row" },
+      el("button", { class: "btn btn-ghost", id: "backToQ", type: "button", onclick: () => go("quiz", Q().length - 1), text: "Terug naar de vragen" }),
+      el("button", { class: "btn btn-ghost", id: "restartBtn", type: "button", onclick: () => { pendingConfirm = "restart"; render(); }, text: "Opnieuw beginnen" })),
+    restart));
+  update();
+}
+
+// ---------- start ----------
+(async function start() {
+  let index;
+  try { index = await getJson("quizzes/index.json"); }
+  catch (e) { renderMessage("Quizzen niet gevonden", "De lijst met quizzen kon niet worden geladen. Probeer het later opnieuw.", false); return; }
+  ORG = index.org || "";
+  const id = new URLSearchParams(location.search).get("q");
+  if (!id) { renderList(index); return; }
+  const entry = (index.quizzes || []).find(q => q.id === id);
+  if (entry && entry.status === "closed") { renderMessage("Deze quiz is gesloten", "Je kunt deze quiz niet meer maken.", true); return; }
+  if (!/^[a-z0-9-]{1,40}$/.test(id)) { renderMessage("Deze quiz bestaat niet", "Controleer de link, of kies een quiz uit de lijst.", true); return; }
+  try { QUIZ = await getJson("quizzes/" + id + ".json"); }
+  catch (e) { renderMessage("Deze quiz bestaat niet", "Controleer de link, of kies een quiz uit de lijst.", true); return; }
+  document.title = QUIZ.title;
+  STORE = `quiz-${QUIZ.id}-v${QUIZ.version}`;
+  state = load() || fresh();
+  render();
+})();
+</script>
+</body>
+</html>
